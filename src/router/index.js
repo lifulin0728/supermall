@@ -10,6 +10,7 @@ const Profile = () => import('views/profile/Profile')
 Vue.use(VueRouter)
 
 // 2.创建路由对象
+// 2.1.配置路由映射关系
 const routes = [
 	{
 		path: '',
