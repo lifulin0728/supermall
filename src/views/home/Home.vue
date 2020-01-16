@@ -7,7 +7,7 @@
 			<home-swiper :banners="banners"/>
 			<recommend-view :recommendes="recommends"/>
 			<feature-view/>
-			<TabControl class="tab-control" :titles="titles" @tabClick="tabClick"/>
+			<TabControl :titles="titles" @tabClick="tabClick"/>
 			<goods-list :goods="showGoods"/>
 		</scroll>
 		
@@ -141,12 +141,6 @@
 		top: 0;
 		left: 0;
 		right: 0;
-		z-index: 9;
-	}
-	
-	.tab-control {
-		position: sticky;
-		top: 44px;
 		z-index: 9;
 	}
 	

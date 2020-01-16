@@ -57,7 +57,7 @@
 				this.scroll && this.scroll.refresh();
 			},
 			finishPullUp() {
-				this.srcoll && this.srcoll.finishPullUp()
+				this.scroll && this.scroll.finishPullUp()
 			}
 		}
 	}
