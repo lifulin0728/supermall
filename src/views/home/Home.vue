@@ -3,11 +3,12 @@
 		<nav-bar class="home-nav">
 			<div slot="center">购物街</div>
 		</nav-bar>
+		<TabControl :titles="titles" @tabClick="tabClick" ref="tabControl1" class="tab-content" v-show="isTabFixd"/>
 		<scroll class="content" ref="scroll" :probe-type="3" @scroll="contentScroll" :pull-up-load="true" @pullingUp="loadMore">
-			<home-swiper :banners="banners"/>
+			<home-swiper :banners="banners" @swiperImageLoad="swiperImageLoad"/>
 			<recommend-view :recommendes="recommends"/>
 			<feature-view/>
-			<TabControl :titles="titles" @tabClick="tabClick"/>
+			<TabControl :titles="titles" @tabClick="tabClick" ref="tabControl2"/>
 			<goods-list :goods="showGoods"/>
 		</scroll>
 		
@@ -52,13 +53,26 @@
 					'sell': {page: 0, list: []}
 				},
 				currentType: 'pop',
-				isShowBackTop: false
+				isShowBackTop: false,
+				tabOffsetTop: 0,
+				isTabFixd:false,
+				saveY: 0
 			}
 		},
 		computed: {
 			showGoods() {
 				return this.goods[this.currentType].list
 			}
+		},
+		destroyed() {
+			console.log("home destroyed")
+		},
+		activated() {
+			this.$refs.scroll.scrollTo(0, this.saveY, 0)
+			this.$refs.scroll.refresh()
+		},
+		deactivated() {
+			this.saveY = this.$refs.scroll.getScrollY()
 		},
 		created() {
 			// 1.请求多个数据
@@ -70,7 +84,7 @@
 			this.getHomeGoods('sell')
 		},
 		mounted() {
-			// 监听item中图片加载完成
+			// 1.图片加载完成的事件监听
 			const refresh = debounce(this.$refs.scroll.refresh, 50)
 			this.$bus.$on('itemImageLoad', () => {
 				refresh()
@@ -93,15 +107,27 @@
 						this.currentType = 'sell';
 						break;
 				}
+				this.$refs.tabControl1.currentIndex = index;
+				this.$refs.tabControl2.currentIndex = index;
 			},
 			backClick() {
 				this.$refs.scroll.scrollTo(0, 0, 500);
 			},
 			contentScroll(position) {
+				// 1.判断BackTop是否显示
 				this.isShowBackTop = (-position.y) > 1000
+				
+				// 2.决定tabControl是否吸顶(position: fixed)
+				this.isTabFixd = (-position.y) > this.tabOffsetTop
 			},
 			loadMore() {
 				this.getHomeGoods(this.currentType)
+			},
+			swiperImageLoad() {
+				// 2.获取tabControl的offsetTop
+				// 所有的组件都有一个属性$el: 用于获取组件中的元素
+				// console.log(this.$refs.tabControl.$el.offsetTop);
+				this.tabOffsetTop = this.$refs.tabControl2.$el.offsetTop
 			},
 			
 			/**
@@ -137,11 +163,11 @@
 	.home-nav{
 		background-color: var(--color-tint);
 		color: #fff;
-		position: fixed;
+	/* 	position: fixed;
 		top: 0;
 		left: 0;
 		right: 0;
-		z-index: 9;
+		z-index: 9; */
 	}
 	
 	.content {
@@ -151,6 +177,11 @@
 		bottom: 49px;
 		left: 0;
 		right: 0;
+	}
+	
+	.tab-content {
+		position: relative;
+		z-index: 9;
 	}
 	
 	/* .content {
